@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <title>AI 探索实验室 · RAG</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <script type="module" src="/main.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#search-query">跳转到检索</a>
+  <header class="site-header">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">R</span><div><strong>AI 探索实验室</strong><span>RAG · 文本检索实验</span></div></div>
+    <button id="theme-button" class="button button-secondary" type="button" aria-pressed="false">切换深色</button>
+  </header>
+  <main class="workspace">
+    <section class="page-heading" aria-labelledby="page-title">
+      <div><p class="eyebrow">RAG EXPERIMENT</p><h1 id="page-title">把资料变成可检索的知识</h1><p>上传文档，输入问题，查看相关原文和来源。只做检索，不生成回答。</p></div>
+      <span class="badge">文本检索链路对齐 MindPad</span>
+    </section>
+    <section class="configuration panel" aria-labelledby="config-title">
+      <div class="section-heading"><h2 id="config-title">当前知识库配置</h2><span class="muted">服务端实际参数 · 只读</span></div>
+      <dl class="configuration-grid">
+        <div><dt>向量模型</dt><dd id="embedding-model">读取中…</dd></div>
+        <div><dt>向量维度</dt><dd id="embedding-dimensions">—</dd></div>
+        <div><dt>切分目标 / 估算 token</dt><dd id="chunk-size">—</dd></div>
+        <div><dt>整块重叠目标 / 估算 token</dt><dd id="chunk-overlap">—</dd></div>
+        <div><dt>向量批量 / 条</dt><dd id="embedding-batch-size">—</dd></div>
+        <div><dt>单文件上限</dt><dd id="max-file-size">—</dd></div>
+      </dl>
+      <p class="configuration-note">采用 MindPad 的段落 / Markdown 内容块拼装与整块重叠，标题层级和行号单独保留。基本汉字计 1，其余每 4 个字符计 1；512/64 是估算目标，完整段落可能超过目标，不是模型精确 token 数。</p>
+      <p class="configuration-note">检索方式：<strong id="retrieval-mode">读取中…</strong>。重排：<span id="rerank-config">读取中…</span>。</p>
+      <details class="advanced-config"><summary>查看集合与同步处理限制</summary><p>独立 Qdrant 集合：<code id="collection-name">—</code></p><p id="processing-limits">配置读取中…</p><p>更改模型、维度或切分参数需要修改服务端配置后重启。旧向量不会自动重算；请使用新集合并重新上传。</p></details>
+      <div class="config-feedback"><p id="config-status" role="status" aria-live="polite">正在读取运行配置…</p><button id="reload-config" class="button button-secondary" type="button" hidden>重试读取配置</button></div>
+    </section>
+    <div class="work-grid">
+      <section class="panel upload-panel" aria-labelledby="upload-title">
+        <div class="section-heading"><h2 id="upload-title">上传资料</h2><span class="step-number" aria-hidden="true">01</span></div>
+        <p class="muted">文件解析、切分、向量生成和 Qdrant 入库全部完成后，才会显示成功。</p>
+        <form id="upload-form" aria-busy="false" novalidate>
+          <label class="file-label" for="document-file"><span class="file-icon" aria-hidden="true">↑</span><strong>选择一份文档</strong><span id="upload-help">支持 TXT、Markdown、DOCX、文字型 PDF</span></label>
+          <input id="document-file" name="file" type="file" accept=".txt,.md,.docx,.pdf" aria-describedby="upload-help selected-file" disabled />
+          <p id="selected-file" class="selected-file">尚未选择文件</p>
+          <button id="upload-button" class="button button-primary full-width" type="submit" disabled>上传并入库</button>
+          <p id="upload-status" class="status-message" role="status" aria-live="polite"></p>
+        </form>
+        <div class="upload-notes"><p>扫描 PDF、图片、音视频和表格暂不支持。</p><p>较大文档会受到同步片段数和文字量限制，不会截断后假装上传成功。</p><p>重复上传会创建新的文档，不自动覆盖或去重。</p></div>
+        <section class="recent-section" aria-labelledby="recent-title"><h3 id="recent-title">本次页面成功上传</h3><p class="muted">这里只记录本次页面的成功操作。已入库片段保存在 Qdrant，全文保存在本实验的 data 目录。</p><ul id="recent-uploads" class="recent-uploads"></ul></section>
+      </section>
+      <section class="panel search-panel" aria-labelledby="search-title">
+        <div class="section-heading"><h2 id="search-title">检索原文</h2><span class="step-number" aria-hidden="true">02</span></div>
+        <p class="muted">输入自然语言问题，从当前集合中的全部文档查找相关片段。</p>
+        <form id="search-form" aria-busy="false" novalidate>
+          <label for="search-query">你想查什么？</label>
+          <textarea id="search-query" name="query" rows="3" maxlength="2000" placeholder="例如：员工请年假需要满足什么条件？" aria-describedby="query-help" disabled></textarea>
+          <div class="search-actions"><p id="query-help" class="muted">最多 2000 个字符</p><label class="top-k-label" for="top-k">返回条数<input id="top-k" type="number" min="1" max="20" step="1" value="8" disabled /></label><button id="search-button" class="button button-primary" type="submit" disabled>开始检索</button></div>
+          <p id="search-status" class="status-message" role="status" aria-live="polite"></p>
+        </form>
+        <div class="results-heading"><h3>检索结果</h3><span id="results-count" class="muted">尚未检索</span></div>
+        <p class="score-note">向量召回与 BM25 关键词召回由 Qdrant 进行 RRF 融合；可选重排成功后按 0.5 门槛过滤。分数不是正确率，RRF 分数和重排相关性不可直接比较。行号对应提取文本，不是 PDF 页码。</p>
+        <p id="ranking-status" class="status-message" role="status" aria-live="polite">尚未检索，实际排序方式将在检索完成后显示。</p>
+        <div id="results-empty" class="empty-state"><span aria-hidden="true">⌕</span><strong>相关内容会显示在这里</strong><p>上传资料后输入问题；集合中已有的文档也可以直接检索。</p></div>
+        <div id="search-results" class="search-results" aria-label="命中的原文片段"></div>
+      </section>
+    </div>
+    <footer class="page-footer">Spring Boot + Spring AI + Qdrant · 使用外部向量 API · 不运行本地模型</footer>
+  </main>
+  <dialog id="document-dialog" class="document-dialog" aria-labelledby="document-title" aria-describedby="document-description" aria-busy="false">
+    <header class="document-dialog-heading"><h2 id="document-title">完整原文</h2><button id="close-document" class="button button-secondary" type="button" autofocus>关闭原文</button></header>
+    <p id="document-description" class="muted">显示切分前的完整提取文本，不是命中片段的拼接；保留换行，以纯文本方式阅读。</p>
+    <div class="document-feedback"><p id="document-status" class="status-message" role="status" aria-live="polite"></p><button id="retry-document" class="button button-secondary" type="button" hidden>重试读取原文</button></div>
+    <div id="document-text" class="document-text" role="region" aria-label="完整原文正文" tabindex="0" hidden></div>
+  </dialog>
+</body>
+</html>

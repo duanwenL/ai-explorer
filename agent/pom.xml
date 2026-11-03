@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.example</groupId>
+        <artifactId>ai-explorer</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>ai-explorer-agent</artifactId>
+    <packaging>pom</packaging>
+    <name>ai-explorer-agent</name>
+    <description>由 Maven 管理依赖安装、测试与代码检查的 Node.js Agent 示例</description>
+    <build>
+        <plugins>
+            <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-enforcer-plugin</artifactId></plugin>
+            <plugin><groupId>com.github.eirslett</groupId><artifactId>frontend-maven-plugin</artifactId></plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <!-- 第一课：只演示 pi-ai 的一次离线请求，不执行工具，不打开数据库。 -->
+        <profile>
+            <id>lesson-model</id>
+            <build><plugins><plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <executions><execution>
+                    <id>single-offline-model-request</id>
+                    <phase>verify</phase>
+                    <goals><goal>npm</goal></goals>
+                    <configuration><arguments>run lesson:model</arguments></configuration>
+                </execution></executions>
+            </plugin></plugins></build>
+        </profile>
+        <profile>
+            <id>demo</id>
+            <build><plugins><plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <executions><execution>
+                    <id>offline-agent-demo</id>
+                    <phase>verify</phase>
+                    <goals><goal>npm</goal></goals>
+                    <configuration><arguments>run demo</arguments></configuration>
+                </execution></executions>
+            </plugin></plugins></build>
+        </profile>
+        <profile>
+            <id>chat</id>
+            <build><plugins><plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <executions><execution>
+                    <id>interactive-agent-chat</id>
+                    <phase>verify</phase>
+                    <goals><goal>npm</goal></goals>
+                    <configuration><arguments>run chat -- "${chat.question}"</arguments></configuration>
+                </execution></executions>
+            </plugin></plugins></build>
+        </profile>
+    </profiles>
+</project>

@@ -1,0 +1,21 @@
+{
+  "name": "ai-explorer-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "AI 探索实验室：最小 pi-durable Agent 执行示例",
+  "engines": { "node": ">=22.19.0" },
+  "scripts": {
+    "lesson:model": "node src/lesson-model.mjs",
+    "demo": "node src/demo.mjs",
+    "chat": "node --env-file-if-exists=.env src/chat.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "lint": "eslint src tests"
+  },
+  "dependencies": {
+    "@earendil-works/pi-durable": "1.2.0",
+    "@earendil-works/pi-ai": "1.2.0",
+    "@earendil-works/chord": "1.2.0"
+  },
+  "devDependencies": { "eslint": "9.39.1" }
+}

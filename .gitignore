@@ -1,0 +1,15 @@
+# 编译、依赖和本机数据不进入源码交付。
+**/target/
+**/node_modules/
+**/data/
+**/.tmp/
+**/.idea/
+**/playwright-report/
+**/test-results/
+*.iml
+*.log
+.DS_Store
+**/config/application-local.yml
+.env
+.env.*
+!.env.example

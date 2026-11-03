@@ -1,0 +1,16 @@
+# 已有 simple-rag-qdrant 容器时直接复用，不创建第二个容器。
+# 此文件用于没有运行实例时启动；保留旧数据卷，禁止 down -v。
+name: ai-explorer-rag
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.20.0
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6333:6333"
+      - "127.0.0.1:6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+volumes:
+  qdrant-data:
+    name: simple-rag-qdrant-data
+    external: true

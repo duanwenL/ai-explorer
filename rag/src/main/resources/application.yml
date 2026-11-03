@@ -1,0 +1,67 @@
+server:
+  address: 127.0.0.1
+  port: ${RAG_PORT:${SERVER_PORT:8081}}
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+spring:
+  application:
+    name: ai-explorer-rag
+  config:
+    # 从模块或聚合项目目录启动均能加载本机配置；真实密钥不进入源码/JAR。
+    import: optional:file:./config/application-local.yml,optional:file:./rag/config/application-local.yml
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 110MB
+  jackson:
+    deserialization:
+      accept-float-as-int: false
+  ai:
+    model:
+      chat: none
+      embedding: openai
+      image: none
+      moderation: none
+      audio:
+        transcription: none
+        speech: none
+    openai:
+      base-url: ${EMBEDDING_BASE_URL:https://api.openhubs.com/v1}
+      embedding:
+        api-key: ${EMBEDDING_API_KEY:}
+        embeddings-path: ${EMBEDDING_PATH:/embeddings}
+        metadata-mode: NONE
+        options:
+          model: ${EMBEDDING_MODEL:text-embedding-v4}
+          dimensions: ${EMBEDDING_DIMENSIONS:1024}
+          encoding-format: float
+    retry:
+      max-attempts: 3
+      on-client-errors: false
+      on-http-codes: [429]
+      backoff:
+        initial-interval: 1s
+        multiplier: 2
+        max-interval: 5s
+rag:
+  chunk-size: ${RAG_CHUNK_SIZE:${CHUNK_SIZE:512}}
+  chunk-overlap: ${RAG_CHUNK_OVERLAP:${CHUNK_OVERLAP:64}}
+  embedding-batch-size: ${RAG_EMBEDDING_BATCH_SIZE:${EMBEDDING_BATCH_SIZE:10}}
+  max-chunks: ${RAG_MAX_CHUNKS:200}
+  max-text-characters: ${RAG_MAX_TEXT_CHARACTERS:1000000}
+  connect-timeout: 5s
+  read-timeout: 30s
+  documents-directory: ${RAG_DOCUMENTS_DIRECTORY:./data/documents}
+  qdrant:
+    # 沿用原集合和数据卷，项目改名不改文档身份，不要求重新上传。
+    url: ${QDRANT_URL:http://127.0.0.1:6333}
+    api-key: ${QDRANT_API_KEY:}
+    collection-name: ${QDRANT_COLLECTION:simple_rag_hybrid_${spring.ai.openai.embedding.options.model}_${spring.ai.openai.embedding.options.dimensions}}
+    dimensions: ${spring.ai.openai.embedding.options.dimensions}
+  rerank:
+    base-url: ${RERANK_BASE_URL:${spring.ai.openai.base-url}}
+    api-key: ${RERANK_API_KEY:}
+    model: ${RERANK_MODEL:qwen3-rerank}
+    timeout: 40s
