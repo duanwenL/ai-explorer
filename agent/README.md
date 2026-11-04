@@ -12,6 +12,22 @@
 
 先改入口文件第 5 行的默认问题，再运行观察请求变化。回复是预先设置的固定文字，换问题后不会变成真实的智能回答。
 
+**第二课：[模型不会自己记住上一轮](docs/basics/02-conversation-history.md)。** 入口是 [src/lesson-history.mjs](src/lesson-history.mjs)。
+
+**第三课：[模型只提出调用工具，程序负责执行](docs/basics/03-tool-call.md)。** 入口是 [src/lesson-tool.mjs](src/lesson-tool.mjs)。
+
+**第四课：[把工具调用写成循环，这就是 Agent](docs/basics/04-agent-loop.md)。** 入口是 [src/lesson-loop.mjs](src/lesson-loop.mjs)。
+
+**第五课：[工具出错时，把错误交给模型](docs/basics/05-tool-error.md)。** 入口是 [src/lesson-error.mjs](src/lesson-error.mjs)。
+
+**第六课：[用 pi-durable 框架代替手写循环](docs/basics/06-framework.md)。** 入口是 [src/lesson-framework.mjs](src/lesson-framework.mjs)。
+
+**第七课：[把对话存进数据库，重启后接着聊](docs/basics/07-persistence.md)。** 入口是 [src/lesson-persist.mjs](src/lesson-persist.mjs)。
+
+**第八课：[把假模型换成真实模型](docs/basics/08-real-model.md)。** 入口是 [src/lesson-real.mjs](src/lesson-real.mjs)。需要先配置 `agent/.env`，调用会产生费用。
+
+平时学习可以直接运行，不需要 Maven：在终端执行 `export PATH="$HOME/IdeaProjects/ai-explorer/target/frontend/node:$PATH"`，进入 `agent` 目录后运行 `node src/lesson-model.mjs`、`node src/lesson-history.mjs`、`node src/lesson-tool.mjs`、`node src/lesson-loop.mjs`、`node src/lesson-error.mjs`、`node src/lesson-framework.mjs` 或 `node src/lesson-persist.mjs "你的问题"`。
+
 下面保留工具计算示例，等掌握模型调用后再学习。
 
 ---
